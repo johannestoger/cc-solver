@@ -10,7 +10,7 @@
 using namespace Eigen;
 using namespace std;
 
-typedef Matrix<int16_t, Dynamic, Dynamic> MatrixXi16;
+typedef Matrix<int16_t, Dynamic, Dynamic> MatXi16;
 
 class Piece
 {
@@ -19,12 +19,15 @@ class Piece
 
         string name;
         uint8_t color; /* XX in \033[48;5;XXm (ANSI escape code) */
-        MatrixXi16 shape;
+        MatXi16 shape;
 
-        void rotate();  /* Rotate 90 degrees counter-clockwise */
+        void rot90();  /* Rotate 90 degrees counter-clockwise */
         void flip();    /* Flip along vertical axis */
+
+        bool operator<(const Piece& rhs) const;
+        bool operator==(const Piece& rhs) const;
 };
 
-ostream& operator<<(ostream& os, Piece& p);
+ostream& operator<<(ostream& os, const Piece& p);
 
 #endif

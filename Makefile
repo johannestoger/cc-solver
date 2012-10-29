@@ -1,9 +1,18 @@
 COMPILER=clang++
 EIGEN=../eigen
 
+COMPILE=${COMPILER} -Wall -O2 -I${EIGEN}
+
 default: all
 
-all: piecenames
+all: readpieces
 
-piecenames: readpieces.cpp Piece.cpp Piece.hpp
-	${COMPILER} -Wall -I${EIGEN} -O2 readpieces.cpp Piece.cpp -o readpieces
+%.o: %.cpp
+	${COMPILE} -c $<
+
+readpieces: Piece.o readpieces.o
+	${COMPILE} $? -o readpieces
+
+clean:
+	rm -f *.o
+	rm -f readpieces

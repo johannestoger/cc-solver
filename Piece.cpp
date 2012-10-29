@@ -4,17 +4,70 @@
 
 Piece::Piece()
 {
-    shape = MatrixXi16::Zero(8,5);
+    shape = MatXi16::Zero(8,5);
     color = 10;
 }
 
-void Piece::rotate()
+void Piece::flip()
 {
-    /* TODO: Do this for real. */
-    shape.transposeInPlace();
+    MatXi16 tmp = shape.colwise().reverse();
+    shape = tmp;
 }
 
-ostream& operator<<(ostream& os, Piece& p)
+void Piece::rot90()
+{
+    MatXi16 tmp1 = shape.transpose();
+    MatXi16 tmp2 = tmp1.colwise().reverse();
+    shape = tmp2;
+}
+
+bool Piece::operator<(const Piece& rhs) const
+{
+    Matrix<uint16_t, 5*8, 1> sortvector;
+    int dr = shape.rows() - rhs.shape.rows();
+    if (dr < 0)
+        return true;
+    else if (dr > 0)
+        return false;
+
+    int dc = shape.cols() - rhs.shape.cols();
+    if (dc < 0)
+        return true;
+    else if (dr > 0)
+        return false;
+
+    /* Matrices have the same size, check elements */
+    int mm = shape.rows();
+    int nn = shape.cols();
+
+    for (int ii = 0; ii < mm; ii++)
+        for (int jj = 0; jj < nn; jj++)
+            if (shape(ii,jj) < rhs.shape(ii,jj))
+                return true;
+            else if (shape(ii,jj) > rhs.shape(ii,jj))
+                return false;
+
+    /* *this and rhs are equal */
+    return false;
+}
+
+bool Piece::operator==(const Piece& rhs) const
+{
+    if (shape.cols() != rhs.shape.cols())
+        return false;
+
+    if (shape.rows() != rhs.shape.rows())
+        return false;
+
+    for (int ii = 0; ii < shape.rows(); ii++)
+        for (int jj = 0; jj < shape.cols(); jj++)
+            if (shape(ii,jj) != rhs.shape(ii,jj))
+                return false;
+
+    return true;
+}
+
+ostream& operator<<(ostream& os, const Piece& p)
 {
     char colbuf[100];
     sprintf(colbuf, "\033[48;5;%im", p.color);
