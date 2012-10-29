@@ -1,6 +1,8 @@
 #ifndef PIECE_H
 #define PIECE_H
 
+#include "stdint.h"
+#include "stdio.h"
 #include <string>
 
 #include "Eigen/Core"
