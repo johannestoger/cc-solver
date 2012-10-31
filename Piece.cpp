@@ -4,26 +4,26 @@
 
 Piece::Piece()
 {
-    shape = MatXi16::Zero(8,5);
+    shape = MatXi8::Zero(8,5);
     color = 10;
 }
 
 void Piece::flip()
 {
-    MatXi16 tmp = shape.colwise().reverse();
+    MatXi8 tmp = shape.colwise().reverse();
     shape = tmp;
 }
 
 void Piece::rot90()
 {
-    MatXi16 tmp1 = shape.transpose();
-    MatXi16 tmp2 = tmp1.colwise().reverse();
+    MatXi8 tmp1 = shape.transpose();
+    MatXi8 tmp2 = tmp1.colwise().reverse();
     shape = tmp2;
 }
 
 bool Piece::operator<(const Piece& rhs) const
 {
-    Matrix<uint16_t, 5*8, 1> sortvector;
+    Matrix<uint8_t, 5*8, 1> sortvector;
     int dr = shape.rows() - rhs.shape.rows();
     if (dr < 0)
         return true;
@@ -78,9 +78,12 @@ ostream& operator<<(ostream& os, const Piece& p)
         for(int col = 0; col < p.shape.cols(); col++)
         {
             if (p.shape(row,col) == 0)
-                os << ' ';
+                os << "  ";
+            else if (row == 2 && col == 2)
+                os << ansicolor << "oo" << "\033[0m";
             else
-                os << ansicolor << "." << "\033[0m";
+                os << ansicolor << "  " << "\033[0m";
+
         }
 
         os << std::endl;

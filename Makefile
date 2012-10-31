@@ -5,14 +5,18 @@ COMPILE=${COMPILER} -Wall -O2 -I${EIGEN}
 
 default: all
 
-all: readpieces
+all: readpieces testboard
 
 %.o: %.cpp
 	${COMPILE} -c $<
 
-readpieces: Piece.o readpieces.o
-	${COMPILE} $? -o readpieces
+readpieces: colors.o Piece.o readpieces.o
+	${COMPILE} $^ -o readpieces
+
+testboard: colors.o testboard.o Board.o
+	${COMPILE} $^ -o testboard
 
 clean:
 	rm -f *.o
 	rm -f readpieces
+	rm -f testboard

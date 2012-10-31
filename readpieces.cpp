@@ -11,30 +11,50 @@
 
 #include "Eigen/Core"
 
+#include "Colors.hpp"
 #include "Piece.hpp"
 
 using namespace std;
 
 Piece readpiecefromfile(string filename);
+vector<vector<Piece> > readpieces();
 
 int main()
 {
+    vector<vector<Piece> > pieces = readpieces();
+    for (int ii = 0; ii < pieces.size(); ii++)
+    {
+        for (int jj = 0; jj < pieces[ii].size(); jj++)
+        {
+            Piece thispiece = pieces[ii][jj];
+            cout << thispiece.name << jj << endl;
+            cout << thispiece;
+            cout << endl;
+        }
+    }
+}
+
+vector<vector<Piece> > readpieces()
+{
     int N_pieces = 12;
     string piecenames("ABCDEFGHIJKL");
+    //int colors[] = {208, 196, 17, 212, 22, 15, 14, 127, 226, 53, 46, 240};
 
-    // Read pieces from files
+    vector<vector<Piece> > pieces(N_pieces, vector<Piece>());
+
     for (int ii = 0; ii < N_pieces; ii++)
     {
+        // Read piece from files
         ostringstream filename;
         filename << "gamedata/" << piecenames.at(ii);
 
-        cout << filename.str() << endl;
-
         Piece pbuf = readpiecefromfile(filename.str());
         pbuf.name = piecenames.at(ii);
+        pbuf.color = COLORS[ii];
 
+        // Find all rotations, flips etc.
+        // This relies on std::set, Piece::operator<() and operator==().
         set<Piece> pset;
-
         pset.insert(pbuf);
         for (int kk = 0; kk < 3; kk++)
         {
@@ -49,9 +69,10 @@ int main()
             pset.insert(pbuf);
         }
 
-        for (set<Piece>::iterator sit = pset.begin(); sit != pset.end(); sit++)
-            cout << *sit << endl;
+        pieces[ii].assign(pset.begin(), pset.end());
     }
+
+    return pieces;
 }
 
 Piece readpiecefromfile(string filename)
@@ -61,19 +82,7 @@ Piece readpiecefromfile(string filename)
     Piece pbuf;
     char linebuf[100];
 
-    // First line is symmetry info
-    piecefile.getline(linebuf, 100);
-    cout << linebuf << endl;
-
-    // Second line: ANSI color
-    piecefile.getline(linebuf, 100);
-    istringstream colstream(linebuf);
-    int color;
-    colstream >> color;
-    pbuf.color = color;
-    cout << "Color: " << (int)pbuf.color << endl;
-
-    // The rest of the file is the shape of the piece
+    // Read shape of the piece from file
     int row = 0;
     while(piecefile.getline(linebuf, 100) && row < 9)
     {

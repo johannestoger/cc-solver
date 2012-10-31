@@ -10,7 +10,7 @@
 using namespace Eigen;
 using namespace std;
 
-typedef Matrix<int16_t, Dynamic, Dynamic> MatXi16;
+typedef Matrix<int8_t, Dynamic, Dynamic> MatXi8;
 
 class Piece
 {
@@ -19,7 +19,7 @@ class Piece
 
         string name;
         uint8_t color; /* XX in \033[48;5;XXm (ANSI escape code) */
-        MatXi16 shape;
+        MatXi8 shape;
 
         void rot90();  /* Rotate 90 degrees counter-clockwise */
         void flip();    /* Flip along vertical axis */
