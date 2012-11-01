@@ -4,6 +4,10 @@
 #include "Board.hpp"
 #include "colors.hpp"
 
+const int Board::rows;
+const int Board::cols;
+const int Board::buffer;
+
 Board::Board(string boardfilename)
 {
     barray.setConstant(BORDER);
@@ -26,6 +30,49 @@ Board::Board(string boardfilename)
         row++;
     }
 
+}
+
+bool Board::placePiece(Piece pc, int crow, int ccol)
+{
+    /*
+     * crow, ccol: coarse row, col. Corresponds to the dots
+     * in gamedata/board.
+     *
+     * If the piece Piece can be placed at (row,col),
+     * change the state of the board and return true.
+     *
+     * Otherwise, the board remains unchanged and false
+     * is returned.
+     *
+     * */
+
+    /* Test if the piece can be placed. */
+    int m = pc.shape.rows();
+    int n = pc.shape.cols();
+
+    for (int ii = 0; ii < m; ii++)
+    {
+        for (int jj = 0; jj <n; jj++)
+        {
+            int row = 3*crow+ii;
+            int col = 3*ccol+jj;
+            if (pc.shape(ii,jj) == 1 && barray(row,col) != Board::EMPTY)
+                return false; // collision found.
+        }
+    }
+
+    // Piece fits, place it
+    for (int ii = 0; ii < m; ii++)
+    {
+        for (int jj = 0; jj <n; jj++)
+        {
+            int row = 3*crow+ii;
+            int col = 3*ccol+jj;
+            if (pc.shape(ii,jj) == 1)
+                barray(row,col) = pc.number;
+        }
+    }
+    return true;
 }
 
 ostream& operator<<(ostream& os, const Board& board)
@@ -57,6 +104,3 @@ ostream& operator<<(ostream& os, const Board& board)
     return os;
 }
 
-const int Board::rows;
-const int Board::cols;
-const int Board::buffer;

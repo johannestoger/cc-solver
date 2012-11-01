@@ -6,6 +6,7 @@ Piece::Piece()
 {
     shape = MatXi8::Zero(8,5);
     color = 10;
+    number = 0;
 }
 
 void Piece::flip()

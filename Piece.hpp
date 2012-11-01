@@ -18,6 +18,7 @@ class Piece
         Piece();
 
         string name;
+        int number;
         uint8_t color; /* XX in \033[48;5;XXm (ANSI escape code) */
         MatXi8 shape;
 

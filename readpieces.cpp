@@ -17,22 +17,6 @@
 using namespace std;
 
 Piece readpiecefromfile(string filename);
-vector<vector<Piece> > readpieces();
-
-int main()
-{
-    vector<vector<Piece> > pieces = readpieces();
-    for (int ii = 0; ii < pieces.size(); ii++)
-    {
-        for (int jj = 0; jj < pieces[ii].size(); jj++)
-        {
-            Piece thispiece = pieces[ii][jj];
-            cout << thispiece.name << jj << endl;
-            cout << thispiece;
-            cout << endl;
-        }
-    }
-}
 
 vector<vector<Piece> > readpieces()
 {
@@ -51,6 +35,7 @@ vector<vector<Piece> > readpieces()
         Piece pbuf = readpiecefromfile(filename.str());
         pbuf.name = piecenames.at(ii);
         pbuf.color = COLORS[ii];
+        pbuf.number = ii;
 
         // Find all rotations, flips etc.
         // This relies on std::set, Piece::operator<() and operator==().
