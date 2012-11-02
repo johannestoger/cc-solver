@@ -1,8 +1,11 @@
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include "Board.hpp"
 #include "colors.hpp"
+
+using namespace std;
 
 const int Board::rows;
 const int Board::cols;
@@ -30,6 +33,8 @@ Board::Board(string boardfilename)
         row++;
     }
 
+    for (int ii = 0; ii < 12; ii++)
+        pieceplaced[ii] = false;
 }
 
 bool Board::placePiece(Piece pc, int crow, int ccol)
@@ -47,6 +52,9 @@ bool Board::placePiece(Piece pc, int crow, int ccol)
      * */
 
     /* Test if the piece can be placed. */
+    if (pieceplaced[pc.number])
+        return false;
+
     int m = pc.shape.rows();
     int n = pc.shape.cols();
 
@@ -72,6 +80,8 @@ bool Board::placePiece(Piece pc, int crow, int ccol)
                 barray(row,col) = pc.number;
         }
     }
+    pieceplaced[pc.number] = true;
+
     return true;
 }
 

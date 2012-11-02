@@ -27,7 +27,7 @@ int main()
         for (int jj = 0; jj < pieces[ii].size(); jj++)
         {
             Piece thispiece = pieces[ii][jj];
-            cout << thispiece.name << jj << endl;
+            cout << ii << " " << jj << endl;
             cout << thispiece;
             cout << endl;
         }

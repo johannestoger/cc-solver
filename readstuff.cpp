@@ -11,6 +11,7 @@
 
 #include "Eigen/Core"
 
+#include "Board.hpp"
 #include "Colors.hpp"
 #include "Piece.hpp"
 
@@ -84,4 +85,32 @@ Piece readpiecefromfile(string filename)
     piecefile.close();
 
     return pbuf;
+}
+
+Board readboard(string filename)
+{
+    Board board;
+    vector<vector<Piece> > pieces = readpieces();
+
+    ifstream infile(filename.c_str());
+    char linebuf[100];
+
+    while(infile.getline(linebuf, 100))
+    {
+        int pieceid, piecevar, crow, ccol;
+
+        string line(linebuf);
+        istringstream linestream(line);
+
+        linestream >> pieceid;
+        linestream >> piecevar;
+        linestream >> crow;
+        linestream >> ccol;
+
+        board.placePiece(pieces[pieceid][piecevar], crow, ccol);
+    }
+
+    infile.close();
+
+    return board;
 }

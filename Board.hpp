@@ -14,7 +14,7 @@ using namespace std;
 class Board
 {
     public:
-        Board(string boardfile);
+        Board(string boardfilename = string("gamedata/board"));
 
         bool placePiece(Piece pc, int row, int col);
 
@@ -36,6 +36,9 @@ class Board
         static const int cols = 20;
         static const int buffer = 8;
         Matrix<int8_t, rows+buffer, cols+buffer> barray;
+
+        /* Keep track of which pieces we have placed. */
+        bool pieceplaced[12];
 };
 
 ostream& operator<<(ostream& os, const Board& p);
