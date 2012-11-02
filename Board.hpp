@@ -2,6 +2,8 @@
 #define BOARD_H
 
 #include <string>
+#include <utility>
+#include <vector>
 #include <Eigen/Core>
 
 #include "Piece.hpp"
@@ -39,6 +41,12 @@ class Board
 
         /* Keep track of which pieces we have placed. */
         bool pieceplaced[12];
+
+        bool isFull(); // true if all 12 pieces are placed
+        vector<pair<int, int> > freeSpaces(); // return free spaces
+
+        bool operator<(const Board& rhs) const;
+        bool operator==(const Board& rhs) const;
 };
 
 ostream& operator<<(ostream& os, const Board& p);

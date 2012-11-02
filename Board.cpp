@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "Board.hpp"
 #include "colors.hpp"
@@ -81,6 +83,74 @@ bool Board::placePiece(Piece pc, int crow, int ccol)
         }
     }
     pieceplaced[pc.number] = true;
+
+    return true;
+}
+
+bool Board::isFull()
+{
+    bool full = true;
+    for (int ii = 0; ii < 12; ii++)
+        full = full && pieceplaced[ii];
+
+    return full;
+}
+
+vector<pair<int,int> > Board::freeSpaces()
+{
+    vector<pair<int,int> > result;
+    for (int crow = 0; crow < 4; crow++)
+        for (int ccol = 0; ccol < 6; ccol++)
+            if (barray(2+3*crow, 2+3*ccol) == EMPTY)
+            {
+                result.insert(result.end(), pair<int,int>(crow,ccol));
+            }
+
+    return result;
+}
+
+bool Board::operator<(const Board& rhs) const
+{
+    Matrix<uint8_t, 5*8, 1> sortvector;
+    int dr = barray.rows() - rhs.barray.rows();
+    if (dr < 0)
+        return true;
+    else if (dr > 0)
+        return false;
+
+    int dc = barray.cols() - rhs.barray.cols();
+    if (dc < 0)
+        return true;
+    else if (dr > 0)
+        return false;
+
+    /* Matrices have the same size, check elements */
+    int mm = barray.rows();
+    int nn = barray.cols();
+
+    for (int ii = 0; ii < mm; ii++)
+        for (int jj = 0; jj < nn; jj++)
+            if (barray(ii,jj) < rhs.barray(ii,jj))
+                return true;
+            else if (barray(ii,jj) > rhs.barray(ii,jj))
+                return false;
+
+    /* *this and rhs are equal */
+    return false;
+}
+
+bool Board::operator==(const Board& rhs) const
+{
+    if (barray.cols() != rhs.barray.cols())
+        return false;
+
+    if (barray.rows() != rhs.barray.rows())
+        return false;
+
+    for (int ii = 0; ii < barray.rows(); ii++)
+        for (int jj = 0; jj < barray.cols(); jj++)
+            if (barray(ii,jj) != rhs.barray(ii,jj))
+                return false;
 
     return true;
 }
