@@ -1,7 +1,7 @@
 COMPILER=clang++
 EIGEN=../eigen
 
-COMPILE=${COMPILER} -Wall -O2 -I${EIGEN}
+COMPILE=${COMPILER} -Wall -O3 -I${EIGEN}
 
 default: all
 

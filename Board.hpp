@@ -43,7 +43,7 @@ class Board
         bool pieceplaced[12];
 
         bool isFull(); // true if all 12 pieces are placed
-        vector<pair<int, int> > freeSpaces(); // return free spaces
+        Matrix<int8_t, 4, 6> freeSpaces(); // return free spaces
 
         bool operator<(const Board& rhs) const;
         bool operator==(const Board& rhs) const;

@@ -96,17 +96,18 @@ bool Board::isFull()
     return full;
 }
 
-vector<pair<int,int> > Board::freeSpaces()
+Matrix<int8_t, 4, 6> Board::freeSpaces()
 {
-    vector<pair<int,int> > result;
+    Matrix<int8_t, 4, 6> freesp;
+
     for (int crow = 0; crow < 4; crow++)
         for (int ccol = 0; ccol < 6; ccol++)
             if (barray(2+3*crow, 2+3*ccol) == EMPTY)
-            {
-                result.insert(result.end(), pair<int,int>(crow,ccol));
-            }
+                freesp(crow,ccol) = 0;
+            else
+                freesp(crow,ccol) = 1;
 
-    return result;
+    return freesp;
 }
 
 bool Board::operator<(const Board& rhs) const
