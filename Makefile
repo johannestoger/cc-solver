@@ -1,4 +1,7 @@
+# Compiles with g++ 4.2 or clang++ 3.1 (and probably some more)
 COMPILER=clang++
+
+# Eigen 3.0, http://eigen.tuxfamily.org
 EIGEN=../eigen
 
 COMPILE=${COMPILER} -Wall -O3 -I${EIGEN}
@@ -22,5 +25,5 @@ solver: colors.o Piece.o Board.o readstuff.o solver.o
 clean:
 	rm -f *.o
 	rm -f printpieces
-	rm -f testboard
 	rm -f printboard
+	rm -f solver

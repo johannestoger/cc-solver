@@ -11,7 +11,6 @@
 using namespace std;
 
 vector<vector<Piece> > pieces;
-int tries;
 
 inline
 bool matchpattern(Board& board, Matrix<int8_t, Dynamic, Dynamic> patt)
@@ -91,47 +90,43 @@ bool hasisolated3x3(Matrix<int8_t, 4, 6>& freesp)
     return false;
 }
 
-void solve(Board board, set<Board>& visited)
+pair<int,int> firstfreespace(Board& board)
 {
-    /* Don't go down this path if we've already been here. */
-    if (visited.find(board) != visited.end())
-        return;
-    else
-        visited.insert(board);
+    for (int crow = 0; crow < 4; crow++)
+        for (int ccol = 0; ccol < 6; ccol++)
+            if (board.barray(2+3*crow, 2+3*ccol) == Board::EMPTY)
+                return pair<int,int>(crow,ccol);
 
+    return pair<int,int>(-1,-1);
+}
+
+void solve(Board board, vector<Board>& solutions, int& moves,
+        int maxmoves, int maxsol)
+{
     /* See if this is a solution */
     if (board.isFull())
     {
-        cout << board << endl;
+        cout << "Solution found!" << endl;
+        solutions.insert(solutions.end(), board);
     }
 
-    /* TODO:
-     *
-     * 1. DONE: Check if there are any isolated coarse blocks.
-     * 2. DONE: Check if there are any isolated fine 1x1, 1x2, 2x1 blocks.
-     * 3. Find more things that we can exit on early.
-     * 4. Find 'constraints' and save them in some way - i.e. if piece X
-     *    is placed here, then piece Y must be over there.
-     * 5. Save something smaller than the full Board object in
-     *    the visited cache to save space and lookup time.
-     * 6. DONE: Look for isolated blocks around the boundary.
-     *
-     * */
+    /* Are we done? */
+    if (solutions.size() >= maxsol) return;
+    if (moves >= maxmoves) return;
 
     /* Check free spaces. 0 = free, 1 = taken. */
     Matrix<int8_t, 4, 6> freesp = board.freeSpaces();
 
-    /* Check isolated coarse blocks. */
+    /* Check for isolated coarse blocks. */
     if (hasisolated3x3(freesp)) return;
 
     /* Check for 1x1, 1x2 and 2x1 isolated blocks in the fine grid,
-     * i.e. look for the following three patterns:
+     * i.e. look for the following patterns:
      *
      *  1      2
      * XXXXXX ??XXXX?? and the transpose of 2.
-     * XX..XX XX    XX
-     * XX  XX ??XXXX??
-     * XXXXXX
+     * XX  XX XX    XX
+     * XXXXXX ??XXXX??
      */
     Matrix<int8_t, 3,3> patt1;
     Matrix<int8_t, 4,3> patt2;
@@ -139,43 +134,36 @@ void solve(Board board, set<Board>& visited)
     patt1 << 1,1,1, 1,0,1, 1,1,1;
     patt2 << -1,1,-1, 1,0,1, 1,0,1, -1,1,-1;
     patt3 << -1,1,1,-1, 1,0,0,1, -1,1,1,-1;
-    if (matchpattern(board, patt1)) return;
+    //if (matchpattern(board, patt1)) return; // is 50% slower ?!
     if (matchpattern(board, patt2)) return;
     if (matchpattern(board, patt3)) return;
 
-    /* Debug: Print all board that we don't bail early on */
-    //cout << board << endl;
+    /* Find the first free space, then try all possible pieces
+     * and orientations. Recurse on all feasible moves. */
+    pair<int,int> placeat = firstfreespace(board);
+    int crow = placeat.first;
+    int ccol = placeat.second;
 
-    /* For each free space, try to place all possible pieces
-     * and orientations. Recurse on all feasible placements. */
     for (int ii = 0; ii < 12; ii++)
     {
         if (board.pieceplaced[ii]) // don't place a piece twice
             continue;
 
-        bool couldplacepiece = false;
-
         // for all piece orientations
         for (int jj = 0; jj < pieces[ii].size(); jj++)
-            // for all empty spaces
-            for (int crow = 0; crow < freesp.rows(); crow++)
-                for (int ccol = 0; ccol < freesp.cols(); ccol++)
-                    if (freesp(crow,ccol) == 0)
-                    {
-                        tries++;
-                        Board tryboard = board;
-                        bool pieceok =
-                            tryboard.placePiece(pieces[ii][jj], crow, ccol);
+            // try to place at the first empty space
+            if (freesp(crow,ccol) == 0)
+            {
+                Board tryboard = board;
+                bool pieceok =
+                    tryboard.placePiece(pieces[ii][jj], crow, ccol);
 
-                        if (pieceok) // recurse
-                        {
-                            couldplacepiece = true;
-                            solve(tryboard, visited);
-                        }
-                    }
-
-        if (!couldplacepiece)
-            break;
+                if (pieceok) // recurse
+                {
+                    moves++;
+                    solve(tryboard, solutions, moves, maxmoves, maxsol);
+                }
+            }
     }
 }
 
@@ -191,18 +179,27 @@ int main(int argc, char* argv[])
 
     pieces = readpieces();
 
-    /* First argument is the file name. */
+    /* Read board from file */
     string filename(argv[1]);
     Board startboard = readboard(filename);
 
     cout << endl << filename << endl << endl;
     cout << startboard << endl;
 
-    tries = 0;
-    set<Board> visited;
-    solve(startboard, visited);
+    /* Solve */
+    int moves = 0;
+    int maxmoves = 100000; // quit after this number of moves (approx.)
+    int maxsol = 10; // quit after this number of solutions
+    vector<Board> solutions;
+    solve(startboard, solutions, moves, maxmoves, maxsol);
 
-    cout << "Done. Tried " << tries << " positions, recursed on "
-        << visited.size() << "." << endl;
+    cout << "Found " << solutions.size() << " solutions using " << moves << " moves." << endl;
+
+    if (solutions.size() > 0)
+    {
+        cout << endl;
+        cout << "Sample solution:" << endl;
+        cout << *solutions.begin() << endl;
+    }
 }
 

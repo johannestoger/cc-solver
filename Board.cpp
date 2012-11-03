@@ -110,52 +110,6 @@ Matrix<int8_t, 4, 6> Board::freeSpaces()
     return freesp;
 }
 
-bool Board::operator<(const Board& rhs) const
-{
-    Matrix<uint8_t, 5*8, 1> sortvector;
-    int dr = barray.rows() - rhs.barray.rows();
-    if (dr < 0)
-        return true;
-    else if (dr > 0)
-        return false;
-
-    int dc = barray.cols() - rhs.barray.cols();
-    if (dc < 0)
-        return true;
-    else if (dr > 0)
-        return false;
-
-    /* Matrices have the same size, check elements */
-    int mm = barray.rows();
-    int nn = barray.cols();
-
-    for (int ii = 0; ii < mm; ii++)
-        for (int jj = 0; jj < nn; jj++)
-            if (barray(ii,jj) < rhs.barray(ii,jj))
-                return true;
-            else if (barray(ii,jj) > rhs.barray(ii,jj))
-                return false;
-
-    /* *this and rhs are equal */
-    return false;
-}
-
-bool Board::operator==(const Board& rhs) const
-{
-    if (barray.cols() != rhs.barray.cols())
-        return false;
-
-    if (barray.rows() != rhs.barray.rows())
-        return false;
-
-    for (int ii = 0; ii < barray.rows(); ii++)
-        for (int jj = 0; jj < barray.cols(); jj++)
-            if (barray(ii,jj) != rhs.barray(ii,jj))
-                return false;
-
-    return true;
-}
-
 ostream& operator<<(ostream& os, const Board& board)
 {
     for(int row = 0; row < board.rows; row++)
