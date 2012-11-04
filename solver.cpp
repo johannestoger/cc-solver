@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
     /* Solve */
     int moves = 0;
     int maxmoves = 100000; // quit after this number of moves (approx.)
-    int maxsol = 10; // quit after this number of solutions
+    int maxsol = 3; // quit after this number of solutions
     vector<Board> solutions;
     solve(startboard, solutions, moves, maxmoves, maxsol);
 
