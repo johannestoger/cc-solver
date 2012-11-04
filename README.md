@@ -1,12 +1,12 @@
 # Solver for the game Lonpos Cosmic Creature.
 
-[[problems/demo6.png]]
+![Demo solution](http://github.com/johannestoger/cc-solver/blob/master/problems/demo6.png?raw=true)
 
 Game maker homepage: http://lonpos.cc/en/userGuideDownload_cc.php
 
 ## Dependencies:
-clang++ 3.1 or g++ 4.2
-Eigen 3.0, see http://eigen.tuxfamily.org
+* clang++ 3.1 or g++ 4.2
+* Eigen 3.0, see http://eigen.tuxfamily.org
 
 Code is tested on Ubuntu Linux 12.04 and Mac OSX 10.7.5.
 
