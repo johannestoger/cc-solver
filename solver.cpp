@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <iostream>
 #include <set>
+#include <stack>
 #include <string>
 #include <vector>
 #include <utility>
@@ -90,70 +92,74 @@ bool hasisolated3x3(Matrix<int8_t, 4, 6>& freesp)
     return false;
 }
 
-pair<int,int> firstfreespace(Board& board)
+pair<int,int> firstfreespace(Matrix<int8_t, 4,6> &freesp)
 {
     for (int crow = 0; crow < 4; crow++)
         for (int ccol = 0; ccol < 6; ccol++)
-            if (board.barray(2+3*crow, 2+3*ccol) == Board::EMPTY)
+            if (freesp(crow,ccol) == 0)
                 return pair<int,int>(crow,ccol);
 
     return pair<int,int>(-1,-1);
 }
 
-void solve(Board board, vector<Board>& solutions, int& moves,
-        int maxmoves, int maxsol)
+void solve(vector<Board>& solutions, stack<Board>& boardstack,
+        int& moves, int maxmoves, int maxsol)
 {
-    /* See if this is a solution */
-    if (board.isFull())
+    while(!boardstack.empty())
     {
-        cout << "Solution found!" << endl;
-        solutions.insert(solutions.end(), board);
-    }
+        Board board = boardstack.top();
+        boardstack.pop();
 
-    /* Are we done? */
-    if (solutions.size() >= maxsol) return;
-    if (moves >= maxmoves) return;
+        /* See if this is a solution */
+        if (board.isFull())
+        {
+            solutions.insert(solutions.end(), board);
+            cout << "Solutions found: " << solutions.size() << endl;
+        }
 
-    /* Check free spaces. 0 = free, 1 = taken. */
-    Matrix<int8_t, 4, 6> freesp = board.freeSpaces();
+        /* Are we done? */
+        if (solutions.size() >= maxsol) return;
+        if (moves >= maxmoves) return;
 
-    /* Check for isolated coarse blocks. */
-    if (hasisolated3x3(freesp)) return;
+        /* Check free spaces. 0 = free, 1 = taken. */
+        Matrix<int8_t, 4, 6> freesp = board.freeSpaces();
 
-    /* Check for 1x1, 1x2 and 2x1 isolated blocks in the fine grid,
-     * i.e. look for the following patterns:
-     *
-     *  1      2
-     * XXXXXX ??XXXX?? and the transpose of 2.
-     * XX  XX XX    XX
-     * XXXXXX ??XXXX??
-     */
-    Matrix<int8_t, 3,3> patt1;
-    Matrix<int8_t, 4,3> patt2;
-    Matrix<int8_t, 3,4> patt3;
-    patt1 << 1,1,1, 1,0,1, 1,1,1;
-    patt2 << -1,1,-1, 1,0,1, 1,0,1, -1,1,-1;
-    patt3 << -1,1,1,-1, 1,0,0,1, -1,1,1,-1;
-    //if (matchpattern(board, patt1)) return; // is 50% slower ?!
-    if (matchpattern(board, patt2)) return;
-    if (matchpattern(board, patt3)) return;
+        /* Check for isolated coarse blocks. */
+        if (hasisolated3x3(freesp)) continue;
 
-    /* Find the first free space, then try all possible pieces
-     * and orientations. Recurse on all feasible moves. */
-    pair<int,int> placeat = firstfreespace(board);
-    int crow = placeat.first;
-    int ccol = placeat.second;
+        /* Check for 1x1, 1x2 and 2x1 isolated blocks in the fine grid,
+         * i.e. look for the following patterns:
+         *
+         *  1      2
+         * XXXXXX ??XXXX?? and the transpose of 2.
+         * XX  XX XX    XX
+         * XXXXXX ??XXXX??
+         */
+        Matrix<int8_t, 3,3> patt1;
+        Matrix<int8_t, 4,3> patt2;
+        Matrix<int8_t, 3,4> patt3;
+        patt1 << 1,1,1, 1,0,1, 1,1,1;
+        patt2 << -1,1,-1, 1,0,1, 1,0,1, -1,1,-1;
+        patt3 << -1,1,1,-1, 1,0,0,1, -1,1,1,-1;
+        //if (matchpattern(board, patt1)) continue; // is 50% slower ?!
+        if (matchpattern(board, patt2)) continue;
+        if (matchpattern(board, patt3)) continue;
 
-    for (int ii = 0; ii < 12; ii++)
-    {
-        if (board.pieceplaced[ii]) // don't place a piece twice
-            continue;
+        /* Find the first free space, then try all possible pieces
+         * and orientations. Recurse on all feasible moves. */
+        pair<int,int> placeat = firstfreespace(freesp);
+        int crow = placeat.first;
+        int ccol = placeat.second;
 
-        // for all piece orientations
-        for (int jj = 0; jj < pieces[ii].size(); jj++)
-            // try to place at the first empty space
-            if (freesp(crow,ccol) == 0)
+        for (int ii = 0; ii < 12; ii++)
+        {
+            if (board.pieceplaced[ii]) // don't place a piece twice
+                continue;
+
+            // for all piece orientations
+            for (int jj = 0; jj < pieces[ii].size(); jj++)
             {
+                // try to place at the first empty space
                 Board tryboard = board;
                 bool pieceok =
                     tryboard.placePiece(pieces[ii][jj], crow, ccol);
@@ -161,9 +167,10 @@ void solve(Board board, vector<Board>& solutions, int& moves,
                 if (pieceok) // recurse
                 {
                     moves++;
-                    solve(tryboard, solutions, moves, maxmoves, maxsol);
+                    boardstack.push(tryboard);
                 }
             }
+        }
     }
 }
 
@@ -190,8 +197,11 @@ int main(int argc, char* argv[])
     int moves = 0;
     int maxmoves = 100000; // quit after this number of moves (approx.)
     int maxsol = 3; // quit after this number of solutions
+
+    stack<Board> boardstack;
+    boardstack.push(startboard);
     vector<Board> solutions;
-    solve(startboard, solutions, moves, maxmoves, maxsol);
+    solve(solutions, boardstack, moves, maxmoves, maxsol);
 
     cout << "Found " << solutions.size() << " solutions using " << moves << " moves." << endl;
 
