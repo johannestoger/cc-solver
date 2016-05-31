@@ -1,6 +1,6 @@
 # Solver for the game Lonpos Cosmic Creature.
 
-![Demo solution](http://github.com/johannestoger/cc-solver/blob/master/problems/demo6.png?raw=true)
+![Demo solution](problems/demo6.png)
 
 Game maker homepage: http://lonpos.cc/en/userGuideDownload_cc.php
 
